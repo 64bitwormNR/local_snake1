@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Local Snake</title>
+<style type="text/css">
+.select-css {
+	display: block;
+	font-size: 12px;
+	font-family: sans-serif;
+	font-weight: 700;
+	color: #444;
+	line-height: 1.0;
+	padding: .6em .4em .5em .8em;
+	width: 80%;
+	max-width: 80%;
+	box-sizing: border-box;
+	margin: 0;
+	border: 1px solid #aaa;
+	box-shadow: 0 1px 0 1px rgba(0,0,0,.04);
+	border-radius: .5em;
+	-moz-appearance: none;
+	-webkit-appearance: none;
+	appearance: none;
+	background-color: #fff;
+	background-image: linear-gradient(to bottom, #ffffff 0%,#e5e5e5 100%);
+	background-repeat: no-repeat, repeat;
+	background-position: right .7em top 50%, 0 0;
+	background-size: .65em auto, 100%;
+}
+.select-css::-ms-expand {
+	display: none;
+}
+.select-css:hover {
+	border-color: #888;
+}
+.select-css:focus {
+	border-color: #aaa;
+	box-shadow: 0 0 1px 3px rgba(59, 153, 252, .7);
+	box-shadow: 0 0 0 3px -moz-mac-focusring;
+	color: #222;
+	outline: none;
+}
+.select-css option {
+	font-weight:normal;
+}
+</style>
+<style type="text/css">
+button.button28 {
+  position: relative;
+  display: inline;
+  font-size: 90%;
+  font-weight: 700;
+  color: rgb(209,209,217);
+  text-decoration: none;
+  text-shadow: 0 -1px 2px rgba(0,0,0,.2);
+  padding: .5em 1em;
+  outline: none;
+  border-radius: 3px;
+  background: linear-gradient(rgb(110,112,120), rgb(81,81,86)) rgb(110,112,120);
+  box-shadow:
+   0 1px rgba(255,255,255,.2) inset,
+   0 3px 5px rgba(0,1,6,.5),
+   0 0 1px 1px rgba(0,1,6,.2);
+  transition: .2s ease-in-out;
+}
+button.button28:hover:not(:active) {
+  background: linear-gradient(rgb(126,126,134), rgb(70,71,76)) rgb(126,126,134);
+}
+button.button28:active {
+  top: 1px;
+  background: linear-gradient(rgb(76,77,82), rgb(56,57,62)) rgb(76,77,82);
+  box-shadow:
+   0 0 1px rgba(0,0,0,.5) inset,
+   0 2px 3px rgba(0,0,0,.5) inset,
+   0 1px 1px rgba(255,255,255,.1);
+}
+</style>
+<style type="text/css">
+body{
+    background-color: #111111;
+   } 
+@keyframes anim1 {
+  from {opacity: 0.0;}
+  to {opacity:   1.0;}
+}
+   .block1 { 
+    width: 512px;
+	height: 512px;
+    background-image: linear-gradient(to bottom right, #555555, #bbbbbb);
+    padding: 0px;
+    border: solid 1px black; 
+    float: left;
+	position: absolute; 
+	opacity: 1.0;
+	animation: anim1 1s;
+	z-index: 1;
+   }
+</style>
+</head>
+<body>
+<div class="block1" id="error1">
+<h2>Magic error :(</h2>
+<br>
+<button type="button" class="button28" onClick="document.location.href=document.location.href;">reload game</button>
+</div>
+<div class="block1" id="loading1">
+<h2>Waiting for server...</h2>
+</div>
+<div class="block1" id="login1">
+<h2>Enter your nickname:</h2>
+<input id="nickname1" type="text">
+<br>
+<button type="button" class="button28" onClick="login_btn1()">enter game</button>
+<br><br>
+<p><b><i>
+local snake game created by x64BitWorm<br>
+control - W A S D or buttons<br>
+(only latin or numbers in nickname)
+</i></b><p>
+</div>
+<div class="block1" id="lobby1">
+<h2>Game settings:</h2>
+<p style="display:inline;">Select map:</p>
+<select id="lobby_s1" class="select-css" onChange="on_sett_edit1()">
+<option>classic box</option>
+<option>without borders</option>
+<option>rooms</option>
+<option>stack</option>
+<option>maze</option>
+<option>long snakes</option>
+<option>random stones</option>
+</select><br>
+<p style="display:inline;">Select speed:</p>
+<select id="lobby_s2" class="select-css" onChange="on_sett_edit1()">
+<option>300</option>
+<option>150</option>
+<option>450</option>
+<option>600</option>
+<option>750</option>
+</select><br>
+<p style="display:inline;">Friendly collisions:</p>
+<select id="lobby_s3" class="select-css" onChange="on_sett_edit1()">
+<option>no</option>
+<option>yes</option>
+</select><br>
+<p style="display:inline;">Apples count:</p>
+<select id="lobby_s4" class="select-css" onChange="on_sett_edit1()">
+<option>1</option>
+<option>2</option>
+<option>3</option>
+<option>5</option>
+<option>7</option>
+<option>10</option>
+<option>15</option>
+<option>20</option>
+<option>30</option>
+<option>50</option>
+</select><br>
+<p style="display:inline;">Dead body to blocks:</p>
+<select id="lobby_s5" class="select-css" onChange="on_sett_edit1()">
+<option>no</option>
+<option>yes</option>
+</select><br>
+<p id="lobby_info1">loading...</p>
+<button type="button" class="button28" onClick="httpGet(getsip1()+'/lobby-set/start',empty1)">start game</button>
+<button type="button" class="button28" onClick="show_ranking1()">last game ranking</button>
+</div>
+<div class="block1" id="game1">
+<canvas id="can1" width="512" height="512"></canvas>
+<button type="button" class="button28" style="touch-action: manipulation; position: absolute; width: 100px; height: 100px; left: 206px; top: 520px;" onmousedown="keypress1('w');">up (W)</button>
+<button type="button" class="button28" style="touch-action: manipulation; position: absolute; width: 100px; height: 100px; left: 106px; top: 620px;" onmousedown="keypress1('a');">left (A)</button>
+<button type="button" class="button28" style="touch-action: manipulation; position: absolute; width: 100px; height: 100px; left: 306px; top: 620px;" onmousedown="keypress1('d');">right (D)</button>
+<button type="button" class="button28" style="touch-action: manipulation; position: absolute; width: 100px; height: 100px; left: 206px; top: 720px;" onmousedown="keypress1('s');">down (S)</button>
+</div>
+<div class="block1" id="ranking1">
+<h2>Table:</h2>
+<div id="ranking_table1"></div>
+<button type="button" class="button28" onClick="document.location.href=document.location.href;">close tab</button>
+</div>
+<script>
+function httpGet(theUrl,callback)
+{
+var xmlHttp = new XMLHttpRequest();
+xmlHttp.onreadystatechange = function() {
+  if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+	callback(xmlHttp.responseText);
+}
+xmlHttp.open("GET", theUrl, true);
+xmlHttp.send(null);
+}
+
+function login1(a)
+{
+	if(a=="login")
+		showpan1("login1");
+	else if(a=="lobby")
+	{
+		btnsvis1=true;
+		showpan1("lobby1");
+		lobby_upd1=true;
+	}
+}
+
+function on_sett_edit1()
+{
+	httpGet(getsip1()+"/lobby-set/"+el("lobby_s1").selectedIndex+";"+el("lobby_s2").selectedIndex+";"+el("lobby_s3").selectedIndex+";"+el("lobby_s4").selectedIndex+";"+el("lobby_s5").selectedIndex,empty1);
+}
+
+function login_btn1()
+{
+	httpGet(getsip1()+"/login/"+el("nickname1").value,login_fwd1);
+}
+
+function login_fwd1(a)
+{
+	if(a=="spectate")
+	{
+		httpGet(getsip1()+'/lobby-get',lobby_get1);
+		game_upd1=true;
+		showpan1("game1");
+	}
+	else if(a=="ok")
+	{
+		showpan1("lobby1");
+		lobby_upd1=true;
+	}
+	else
+	{
+		alert("wrong nickname");
+	}
+}
+
+function showpan1(a)
+{
+	var all1=["login1","loading1","error1","lobby1","game1","ranking1"];
+	for(var i=0;i<all1.length;i++)
+		el(all1[i]).style.visibility='hidden';
+	el(a).style.visibility='visible';
+	reset_animation(a);
+}
+
+function reset_animation(a) {
+  var el = document.getElementById(a);
+  el.style.animation = 'none';
+  el.offsetHeight;
+  el.style.animation = null; 
+}
+
+function empty1(a){}
+
+function getsip1()
+{
+r=location.href;
+r=r.substring(r.indexOf(':')+3,r.indexOf('/',8));
+return "http://"+r;
+}
+
+function lobby_evnt1()
+{
+	if(!lobby_upd1)
+		return;
+	time1=new Date().getTime();
+	httpGet(getsip1()+'/lobby-get',lobby_get1);
+}
+
+function lobby_get1(a)
+{
+	var sett1=a.split(';');
+	players1=sett1[5].split(", ");
+	el("lobby_info1").innerHTML="Players: "+sett1[5]+"<br>Ping (ms): "+(new Date().getTime()-time1);
+	if(sett1[6]=="1" && !game_upd1)
+	{
+		clearInterval(game_loop_int1);
+		game_loop_int1=setInterval(game_loop1,[300,150,450,600,750][sett1[1]]);
+		direct1='d';
+		game_upd1=true;
+		showpan1("game1");
+		return;
+	}
+	if(el("lobby_s1").selectedIndex!=sett1[0])
+		el("lobby_s1").selectedIndex=sett1[0];
+	if(el("lobby_s2").selectedIndex!=sett1[1])
+		el("lobby_s2").selectedIndex=sett1[1];
+	if(el("lobby_s3").selectedIndex!=sett1[2])
+		el("lobby_s3").selectedIndex=sett1[2];
+	if(el("lobby_s4").selectedIndex!=sett1[3])
+		el("lobby_s4").selectedIndex=sett1[3];
+	if(el("lobby_s5").selectedIndex!=sett1[4])
+		el("lobby_s5").selectedIndex=sett1[4];
+}
+
+function el(a)
+{
+	return document.getElementById(a);
+}
+
+function game_loop1()
+{
+	if(!game_upd1)
+		return;
+	httpGet(getsip1()+"/game/"+direct1,game_fwd1);
+}
+
+function show_ranking1()
+{
+	game_upd1=false;
+	showpan1("ranking1");
+	httpGet(getsip1()+'/ranking',ranking_fwd1);
+}
+
+function ranking_fwd1(a)
+{
+	el("ranking_table1").innerHTML=a;
+}
+
+function game_fwd1(a)
+{
+	//console.log(a);
+	if(a=="ranking")
+	{
+		show_ranking1();
+		return;
+	}
+	var names1=Array(players1.length);
+	names1.fill(0);
+	ctx1.font = "15px Arial";
+	ctx1.textAlign = "center";
+	for(var i=0;i<a.length;i++)
+	{
+		var cx=i%32;
+		var cy=Math.trunc(i/32);
+		var cc1=a.charAt(i);
+		if(cc1=='0')
+		{
+			ctx1.fillStyle = grd2;
+			ctx1.fillRect(cx*16, cy*16, 16, 16);
+		}
+		else if(cc1=='1')
+		{
+			ctx1.fillStyle = grd1;
+			ctx1.fillRect(cx*16, cy*16, 16, 16);
+		}
+		else if(cc1=='2' || cc1=='3')
+		{
+			ctx1.fillStyle = grd2;
+			ctx1.fillRect(cx*16, cy*16, 16, 16);
+			var grd3 = ctx1.createRadialGradient(cx*16+8,cy*16+8,4,cx*16+8,cy*16+8,10);
+			grd3.addColorStop(0,cc1=='3' ? "blue":"red");
+			grd3.addColorStop(1,"rgba(255,0,0,0)");
+			ctx1.fillStyle = grd3;
+			ctx1.fillRect(cx*16, cy*16, 16, 16);
+		}
+		else
+		{
+			var sid1=cc1.charCodeAt(0)-97;
+			ctx1.fillStyle = grd2;
+			ctx1.fillRect(cx*16, cy*16, 16, 16);
+			ctx1.fillStyle = sgrd1[sid1];
+			ctx1.fillRect(cx*16+1, cy*16+1, 14, 14);
+			ctx1.fillStyle="#"+invertcolor1(clrs1[sid1]);
+			if(names1[sid1]<players1[sid1].length)
+			{
+				names1[sid1]++;
+				ctx1.fillText(players1[sid1].charAt(names1[sid1]), cx*16+8, cy*16+10);
+			}
+		}
+	}
+}
+
+function invertcolor1(a)
+{
+    var ret1="";
+    var hx1=['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'];
+    for(var i=0;i<a.length;i++)
+        ret1+=hx1[15-hx1.indexOf(a.charAt(i))];
+	return ret1;
+}
+
+function keypress1(a)
+{
+	if(typeof(a)!="string")
+		a=a.key;
+	if(!game_upd1)
+		return;
+	//console.log(42);
+	if(a=='a' || a=='w' || a=='s' || a=='d')
+		direct1=a;
+}
+
+function prepare_colors1()
+{
+	grd1 = ctx1.createLinearGradient(0,0,512,512);
+	grd1.addColorStop(0,"#111111");
+	grd1.addColorStop(1,"#555555");
+	grd2 = ctx1.createLinearGradient(0,0,512,512);
+	grd2.addColorStop(0,"#eeeeee");
+	grd2.addColorStop(1,"#aaaaaa");
+	sgrd1=Array(26);
+	for(var i=0;i<sgrd1.length;i++)
+	{
+		var grdt1 = ctx1.createRadialGradient(256,256,10,256,256,200);
+		grdt1.addColorStop(0,'#'+clrs1[i]);
+		grdt1.addColorStop(1,'#'+clrs1[(i+1)%clrs1.length]);
+		sgrd1[i]=grdt1;
+	}
+}
+
+//ENTRY_POINT
+var clrs1=['990000','993300','cc9900','006600','336666','0033ff','000099','660099','990066','ff0000','ff3300','ffff00','00cc00','009999','0099ff','0000ff','9900cc','ff0099','ff6666','ff6633','ffff66','66ff66','66cccc','00ffff','3399ff','9966ff','ff66ff'];
+var lobby_upd1=false;
+var game_upd1=false;
+var direct1='d';
+var players1="";
+var canvas1 = el("can1");
+var ctx1 = canvas1.getContext("2d");
+var time1=new Date().getTime();
+var grd1;
+var grd2;
+var sgrd1;
+showpan1("loading1");
+window.scrollTo(0,0);
+setInterval(lobby_evnt1,1000);
+var game_loop_int1=setInterval(game_loop1,150);
+httpGet(getsip1()+'/status',login1);
+document.addEventListener("keypress",keypress1);
+prepare_colors1();
+</script>
+</body>
+</html>
